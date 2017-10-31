@@ -69,7 +69,7 @@ public class TestConfig {
 
             Assert.assertEquals(realConfig.getFormat(), format);
 
-        } catch (NullPointerException e) {
+        } catch (YamtException e) {
             Assert.fail("Should fail, not complete Config");
         }
     }
@@ -81,7 +81,7 @@ public class TestConfig {
         try {
             YamtConfig realConfig = config.verify();
             Assert.fail("Should fail, not complete Config");
-        } catch (NullPointerException e) {
+        } catch (YamtException e) {
             Assert.assertEquals(true, true);
         }
     }

@@ -1,6 +1,8 @@
 package config;
 
+
 import com.sun.istack.internal.Nullable;
+import errors.YamtException;
 import lombok.*;
 
 import java.nio.file.Path;
@@ -75,7 +77,7 @@ public class IncompleteYamtConfig {
      * @return a valid YamtConfig
      */
     @NonNull
-    public YamtConfig verify() {
+    public YamtConfig verify() throws YamtException {
         if (musicDir.isPresent()
                 && outDir.isPresent()
                 && format.isPresent()) {
@@ -85,7 +87,7 @@ public class IncompleteYamtConfig {
                     .outDir(outDir.orElse(null))
                     .format(format.orElse(null))
                     .build();
-            //TODO: Throw a checked Exception instead
-        } else throw new NullPointerException("Unable to create complete config");
+
+        } else throw new YamtException.ConfigException("Unable to create complete config");
     }
 }
