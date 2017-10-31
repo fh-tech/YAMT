@@ -1,9 +1,9 @@
-package config;
+package org.itp1.yamtlib.config;
 
 
 import com.sun.istack.internal.Nullable;
-import errors.YamtException;
 import lombok.*;
+import org.itp1.errors.YamtException;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -16,7 +16,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class IncompleteYamtConfig {
 
     @NonNull
@@ -88,6 +88,6 @@ public class IncompleteYamtConfig {
                     .format(format.orElse(null))
                     .build();
 
-        } else throw new YamtException.ConfigException("Unable to create complete config");
+        } else throw new YamtException.ConfigException("Unable to create complete org.itp1.config");
     }
 }

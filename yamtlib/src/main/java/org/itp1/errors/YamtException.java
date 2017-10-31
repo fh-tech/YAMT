@@ -1,4 +1,4 @@
-package errors;
+package org.itp1.errors;
 
 public class YamtException extends Exception {
 

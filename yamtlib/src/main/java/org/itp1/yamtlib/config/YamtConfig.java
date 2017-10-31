@@ -1,4 +1,4 @@
-package config;
+package org.itp1.yamtlib.config;
 
 import lombok.*;
 
