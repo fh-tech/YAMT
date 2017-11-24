@@ -1,7 +1,5 @@
 package org.itp1.yamtlib.config;
 
-
-import com.sun.istack.internal.Nullable;
 import lombok.*;
 import org.itp1.errors.YamtException;
 
@@ -20,12 +18,15 @@ import java.util.Optional;
 public class IncompleteYamtConfig {
 
     @NonNull
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<Path> musicDir = Optional.empty();
 
     @NonNull
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<Path> outDir = Optional.empty();
 
     @NonNull
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<String> format = Optional.empty();
 
     /**
@@ -48,7 +49,7 @@ public class IncompleteYamtConfig {
      *
      * @param musicDir Parameter to merge
      */
-    void mergeMusicDir(@Nullable Path musicDir) {
+    void mergeMusicDir(Path musicDir) {
         this.musicDir = Optional.ofNullable(this.musicDir.orElse(musicDir));
     }
 
@@ -57,7 +58,7 @@ public class IncompleteYamtConfig {
      *
      * @param outDir Parameter to merge
      */
-    void mergeOutDir(@Nullable Path outDir) {
+    void mergeOutDir(Path outDir) {
         this.outDir = Optional.ofNullable(this.outDir.orElse(outDir));
     }
 
@@ -66,7 +67,7 @@ public class IncompleteYamtConfig {
      *
      * @param format Parameter to merge
      */
-    void mergeFormat(@Nullable String format) {
+    void mergeFormat(String format) {
         this.format = Optional.ofNullable(this.format.orElse(format));
     }
 

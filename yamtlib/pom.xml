@@ -12,6 +12,11 @@
 
     <artifactId>yamtlib</artifactId>
 
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <main.basedir>${project.parent.basedir}</main.basedir>
+    </properties>
 
     <dependencies>
         <!-- Application dependencies -->
