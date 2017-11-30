@@ -1,7 +1,7 @@
 package org.itp1.yamtlib.config;
 
 
-import org.itp1.errors.YamtException;
+import org.itp1.yamtlib.errors.YamtException;
 
 import java.util.function.Supplier;
 
