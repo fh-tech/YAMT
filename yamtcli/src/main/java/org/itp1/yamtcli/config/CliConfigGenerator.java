@@ -2,7 +2,7 @@ package org.itp1.yamtcli.config;
 
 
 import org.apache.commons.cli.*;
-import org.itp1.errors.YamtException;
+import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.config.ConfigGenerator;
 import org.itp1.yamtlib.config.IncompleteYamtConfig;
 
