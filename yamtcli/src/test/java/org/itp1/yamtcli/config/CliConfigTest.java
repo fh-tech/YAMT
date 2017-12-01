@@ -1,6 +1,6 @@
 package org.itp1.yamtcli.config;
 
-import org.itp1.errors.YamtException;
+import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.config.IncompleteYamtConfig;
 import org.junit.Assert;
 import org.junit.Test;

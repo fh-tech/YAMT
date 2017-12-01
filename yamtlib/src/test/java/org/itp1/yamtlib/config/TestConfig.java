@@ -1,6 +1,6 @@
 package org.itp1.yamtlib.config;
 
-import org.itp1.errors.YamtException;
+import org.itp1.yamtlib.errors.YamtException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
