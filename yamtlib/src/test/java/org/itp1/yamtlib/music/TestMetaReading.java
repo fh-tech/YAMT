@@ -1,31 +1,14 @@
 package org.itp1.yamtlib.music;
 
+import org.itp1.yamtlib.errors.YamtException;
 import org.jaudiotagger.tag.FieldKey;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
 public class TestMetaReading extends TestMeta {
-
-    @Test
-    public void testMetaDataConstructorURL() {
-        MetaData metaData = new MetaData(getClass().getResource("/test.mp3").getPath());
-        Assert.assertNotNull(metaData);
-        Assert.assertNotNull(metaData.getTags());
-        Assert.assertNotNull(metaData.getAudioFile());
-        Assert.assertNotNull(metaData.getAudioHeader());
-    }
-
-    @Test
-    public void testMetaDataConstructorFile() {
-        File f = new File(getClass().getResource("/test.mp3").getFile());
-        MetaData metaData = new MetaData(f);
-        Assert.assertNotNull(metaData);
-        Assert.assertNotNull(metaData.getTags());
-        Assert.assertNotNull(metaData.getAudioFile());
-        Assert.assertNotNull(metaData.getAudioHeader());
-    }
 
     // supports flac, ogg vorbis, mp3, wav(limited)
     @Test
@@ -34,8 +17,8 @@ public class TestMetaReading extends TestMeta {
         try {
             String[] actual = new String[5];
             for(int i = 0; i < testFiles.length; i++) {
-                MetaData metaData = new MetaData(testFiles[i]);
-                actual[i] = metaData.getFormat();
+                YamtMusic yamtMusic = new YamtMusic(testFiles[i]);
+                actual[i] = yamtMusic.getFormat();
             }
             Assert.assertArrayEquals(expected, actual);
         } catch (Exception e) {
@@ -44,16 +27,39 @@ public class TestMetaReading extends TestMeta {
     }
 
     @Test
-    public void printAllAvailableFields() {
-        MetaData metaData = new MetaData(getClass().getResource("/test.mp3").getPath());
-        for(FieldKey fkey : FieldKey.values()) {
-            System.out.print(fkey + ": ");
-            System.out.println(metaData.getTags().getFirst(fkey));
+    public void testGetterSetter() {
+        YamtMusic yamtMusic;
+        try {
+            yamtMusic = new YamtMusic(testFiles[1]);
+            WantedKey wantedKey = WantedKey.ALBUM_ARTIST_SORT;
+            String newValue = "albumTest";
+            yamtMusic.setTag(wantedKey, newValue);
+            Assert.assertTrue(newValue.equals(yamtMusic.getTag(wantedKey)));
+
+            wantedKey = WantedKey.ARTIST_SORT;
+            newValue = "artistTest";
+            yamtMusic.setTag(wantedKey, newValue);
+            Assert.assertFalse("different".equals(yamtMusic.getTag(wantedKey)));
+        } catch (YamtException.MusicException e) {
+            e.printStackTrace();
         }
     }
 
 
-
+    @Ignore
+    @Test
+    public void printAllAvailableFields() {
+        YamtMusic yamtMusic;
+        try {
+            yamtMusic = new YamtMusic(getClass().getResource("/test.mp3").getPath());
+            for(FieldKey fkey : FieldKey.values()) {
+                System.out.print(fkey + ": ");
+                System.out.println(yamtMusic.getTags().getFirst(fkey));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
 
 
