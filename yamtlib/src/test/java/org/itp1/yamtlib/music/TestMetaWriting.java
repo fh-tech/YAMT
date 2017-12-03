@@ -1,7 +1,6 @@
 package org.itp1.yamtlib.music;
 
-import org.jaudiotagger.tag.FieldDataInvalidException;
-import org.jaudiotagger.tag.FieldKey;
+import org.itp1.yamtlib.errors.YamtException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,12 +12,17 @@ public class TestMetaWriting extends TestMeta {
     public void testWriteFiles() {
         YamtMusic yamtMusic;
         String newValue = "testArtist";
-        WantedKeys wantedKey = WantedKeys.ARTIST;
+        WantedKey wantedKey = WantedKey.ARTIST;
         for(File tf : testFiles) {
-            yamtMusic = new YamtMusic(tf);
-            yamtMusic.setTag(wantedKey, newValue);
-            Assert.assertTrue(newValue.equals(yamtMusic.getTag(wantedKey)));
+            try {
+                yamtMusic = new YamtMusic(tf);
+                yamtMusic.setTag(wantedKey, newValue);
+                Assert.assertTrue(newValue.equals(yamtMusic.getTag(wantedKey)));
+            } catch (YamtException.MusicException e) {
+                Assert.fail(e.getMessage());
+            }
         }
     }
+
 
 }

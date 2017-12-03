@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.lang.reflect.Array;
 
 public class TestMeta {
 
@@ -18,7 +19,8 @@ public class TestMeta {
     protected static final String TEST_FLAC2 = "test2.flac";
 
     protected static final String[] fileNames = {TEST_MP3, TEST_OGG, TEST_WAV, TEST_FLAC, TEST_FLAC2};
-    protected static final File[] testFiles = new File[5];
+    protected static final File[] testFiles_real = new File[5];
+    protected static File[] testFiles = new File[5];
 
 
     @Test
@@ -27,11 +29,13 @@ public class TestMeta {
     public void buildFileAr() {
         for(int i = 0; i < fileNames.length; i++) {
             try {
-                testFiles[i] = new File(getClass().getResource("/"+ fileNames[i]).getFile());
+                testFiles_real[i] = new File(getClass().getResource("/"+ fileNames[i]).getFile());
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
+        // working with clone to not really manipulate the data and test cases make sense
+        testFiles = testFiles_real.clone();
     }
 
 }

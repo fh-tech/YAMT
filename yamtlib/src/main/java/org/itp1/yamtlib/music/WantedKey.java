@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.jaudiotagger.tag.FieldKey;
 
 @Getter
-public enum WantedKeys {
+public enum WantedKey {
     ALBUM(FieldKey.ALBUM),
     ALBUM_ARTIST(FieldKey.ALBUM_ARTIST),
     ALBUM_ARTIST_SORT(FieldKey.ALBUM_ARTIST_SORT),
@@ -27,7 +27,7 @@ public enum WantedKeys {
 
     private FieldKey fk;
 
-    private WantedKeys(FieldKey fk) {
+    private WantedKey(FieldKey fk) {
         this.fk = fk;
     }
 

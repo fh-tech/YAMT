@@ -1,7 +1,9 @@
 package org.itp1.yamtlib.music;
 
+import org.itp1.yamtlib.errors.YamtException;
 import org.jaudiotagger.tag.FieldKey;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -26,24 +28,36 @@ public class TestMetaReading extends TestMeta {
 
     @Test
     public void testGetterSetter() {
-        YamtMusic yamtMusic = new YamtMusic(testFiles[1]);
-        WantedKeys wantedKey = WantedKeys.ALBUM_ARTIST_SORT;
-        String newValue = "albumTest";
-        yamtMusic.setTag(wantedKey, newValue);
-        Assert.assertTrue(newValue.equals(yamtMusic.getTag(wantedKey)));
+        YamtMusic yamtMusic;
+        try {
+            yamtMusic = new YamtMusic(testFiles[1]);
+            WantedKey wantedKey = WantedKey.ALBUM_ARTIST_SORT;
+            String newValue = "albumTest";
+            yamtMusic.setTag(wantedKey, newValue);
+            Assert.assertTrue(newValue.equals(yamtMusic.getTag(wantedKey)));
 
-        wantedKey = WantedKeys.ARTIST_SORT;
-        newValue = "artistTest";
-        yamtMusic.setTag(wantedKey, newValue);
-        Assert.assertFalse("different".equals(yamtMusic.getTag(wantedKey)));
+            wantedKey = WantedKey.ARTIST_SORT;
+            newValue = "artistTest";
+            yamtMusic.setTag(wantedKey, newValue);
+            Assert.assertFalse("different".equals(yamtMusic.getTag(wantedKey)));
+        } catch (YamtException.MusicException e) {
+            e.printStackTrace();
+        }
     }
 
+
+    @Ignore
     @Test
     public void printAllAvailableFields() {
-        YamtMusic yamtMusic = new YamtMusic(getClass().getResource("/test.mp3").getPath());
-        for(FieldKey fkey : FieldKey.values()) {
-            System.out.print(fkey + ": ");
-            System.out.println(yamtMusic.getTags().getFirst(fkey));
+        YamtMusic yamtMusic;
+        try {
+            yamtMusic = new YamtMusic(getClass().getResource("/test.mp3").getPath());
+            for(FieldKey fkey : FieldKey.values()) {
+                System.out.print(fkey + ": ");
+                System.out.println(yamtMusic.getTags().getFirst(fkey));
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
         }
     }
 
