@@ -11,18 +11,13 @@ public class TestMetaWriting extends TestMeta {
 
     @Test
     public void testWriteFiles() {
-        MetaData metaData;
+        YamtMusic yamtMusic;
+        String newValue = "testArtist";
+        WantedKeys wantedKey = WantedKeys.ARTIST;
         for(File tf : testFiles) {
-            metaData = new MetaData(tf);
-            try {
-                metaData.getTags().setField(FieldKey.ARTIST, "testArtist");
-            } catch (FieldDataInvalidException e) {
-                System.out.println("exception");
-                e.printStackTrace();
-            }
-            System.out.println(metaData.getTags().getFirst(FieldKey.ARTIST));
-            System.out.println(metaData.getTags().getFirst(FieldKey.ARTIST) == "testArtist");
-            Assert.assertTrue(metaData.getTags().getFirst(FieldKey.ARTIST) == "testArtist");
+            yamtMusic = new YamtMusic(tf);
+            yamtMusic.setTag(wantedKey, newValue);
+            Assert.assertTrue(newValue.equals(yamtMusic.getTag(wantedKey)));
         }
     }
 

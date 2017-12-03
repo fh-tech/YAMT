@@ -2,38 +2,68 @@ package org.itp1.yamtlib.music;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldDataInvalidException;
+import org.jaudiotagger.tag.Tag;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 
-@Setter
+
 @Getter
 public class YamtMusic {
 
-    private static ArrayList<YamtMusic> wholemusic = new ArrayList<YamtMusic>();
+    private AudioFile audioFile;
+    private AudioHeader audioHeader;
+    private Tag tags;
+    private String format;
+    private File file;
 
-    private String ALBUM;
-    private String ALBUM_ARTIST;
-    private String ALBUM_ARTIST_SORT;
-    private String ARTIST;
-    private String ARTIST_SORT;
-    private String YEAR;
-    private String COMMENT;
-    private String COMPOSER;
-    private String COMPOSER_SORT;
-    private String GENRE;
-    private String KEY;
-    private String LANGUAGE;
-    private String LYRICIST;
-    private String LYRICS;
-    private String ENGINEER;
-    private String PRODUCER;
-    private String TRACK;
-    private String TITLE;
-    private String TAGS;
-    private String QUALITY;
-    private String ORIGINAL_ALBUM;
-    private String ORIGINAL_ARTIST;
-    private String ORIGINAL_LYRICIST;
-    private String ORIGINAL_YEAR;
+    public YamtMusic(String url) {
+        this(makeFile(url));
+    }
+
+    public YamtMusic(File f) {
+        this.file = f;
+        if(this.file != null) this.audioFile = makeAudioFile(this.file);
+        if(this.audioFile != null) this.audioHeader = this.audioFile.getAudioHeader();
+        if(this.audioFile != null) this.tags = this.audioFile.getTag();
+        if(this.audioHeader != null) this.format = this.audioHeader.getFormat();
+    }
+
+    public String getTag(WantedKeys wantedKey) {
+        return this.getTags().getFirst(wantedKey.getFk());
+    }
+
+    public void setTag(WantedKeys wantedKey, String newValue) {
+        try {
+            this.getTags().setField(wantedKey.getFk(), newValue);
+        } catch (FieldDataInvalidException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // creates fileObject return null if it doesnt exist or on failure
+    private static File makeFile(String url) {
+        try {
+            File f = new File(url);
+            if(f.exists()) return f;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //makes AudioFile returns null if it doesnt exist or on failure
+    private AudioFile makeAudioFile(File f) {
+        try {
+            return AudioFileIO.read(f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

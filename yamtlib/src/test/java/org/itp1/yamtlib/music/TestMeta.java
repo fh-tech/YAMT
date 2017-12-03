@@ -28,7 +28,6 @@ public class TestMeta {
         for(int i = 0; i < fileNames.length; i++) {
             try {
                 testFiles[i] = new File(getClass().getResource("/"+ fileNames[i]).getFile());
-
             } catch(Exception e) {
                 e.printStackTrace();
             }
