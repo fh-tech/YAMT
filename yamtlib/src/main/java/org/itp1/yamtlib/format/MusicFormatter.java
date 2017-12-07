@@ -1,19 +1,36 @@
 package org.itp1.yamtlib.format;
 
+import lombok.NonNull;
 import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.music.WantedKey;
 import org.itp1.yamtlib.music.YamtMusic;
 
-//TODO: Documentation
+/***
+ * This class represents a Formatter for music file names.
+ * Format Strings should be in the format: abc{tagname}bnb
+ * When given a specific music file in form of a {@link YamtMusic} object {tagname} is replaced by the value of
+ * the metadata 'tagname', or throws an exception should the tag name be unknown or not set on the file.
+ */
 
 public class MusicFormatter {
 
     private final String formatString;
 
-    public MusicFormatter(String formatString) {
+    public MusicFormatter(@NonNull String formatString) {
         this.formatString = formatString;
     }
 
+    /***
+     * Returns the next occurrence of char of in String s not preceded by a '\'
+     */
+    private static int indexOfNotEscaped(int from, char of, String s) {
+        int index = s.indexOf(of, from);
+        if (index > 0 && s.charAt(index - 1) == '\\') {
+            return indexOfNotEscaped(index + 1, of, s);
+        } else {
+            return index;
+        }
+    }
 
     /***
      * Generates a new file name for a given music file with the <code>formatString</code> used to construct this {@link MusicFormatter}
@@ -21,7 +38,7 @@ public class MusicFormatter {
      * @return the new filename relative to the output directory as String
      * @throws YamtException.FormatException when the given format string is invalid or if the required metadata is not present
      */
-    public String format(YamtMusic music) throws YamtException.FormatException {
+    public String format(@NonNull YamtMusic music) throws YamtException.FormatException {
         try {
             return partialFormat(formatString, music)
                     .replaceAll("\\\\\\{", "{")
@@ -33,7 +50,7 @@ public class MusicFormatter {
         }
     }
 
-    private String partialFormat(String remainingFormat, YamtMusic music) throws YamtException {
+    private String partialFormat(String remainingFormat, @NonNull YamtMusic music) throws YamtException {
 
         //get both opening and closing Brackets in remaining String
         int iOpenBracket = indexOfNotEscaped(0, '{', remainingFormat);
@@ -55,17 +72,8 @@ public class MusicFormatter {
         } else {
             throw new YamtException.FormatException(
                     "Unable to generate new name for file ["
-                            + music.getFile().getPath() +
+                            + (music.getFile() != null ? music.getFile().getPath() : null) +
                             "]\n Missing metadata: [" + metaDataIdentifier + "]");
-        }
-    }
-
-    private static int indexOfNotEscaped(int from, char of, String s){
-        int index = s.indexOf(of, from);
-        if(index > 0 && s.charAt(index-1) == '\\'){
-            return indexOfNotEscaped(index+1, of, s);
-        }else{
-            return index;
         }
     }
 }
