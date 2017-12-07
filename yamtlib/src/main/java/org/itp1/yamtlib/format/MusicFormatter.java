@@ -25,6 +25,7 @@ public class MusicFormatter {
      */
     private static int indexOfNotEscaped(int from, char of, String s) {
         int index = s.indexOf(of, from);
+        //if index is -1 return it if index is 0 it cant be escaped, if it is higher check for '/'
         if (index > 0 && s.charAt(index - 1) == '\\') {
             return indexOfNotEscaped(index + 1, of, s);
         } else {
@@ -64,7 +65,7 @@ public class MusicFormatter {
         String metaData = music.getTag(WantedKey.fromTemplateString(metaDataIdentifier));
 
         if (metaData != null && !metaData.equals("")) {
-            //this method with the string after the closing bracket
+            //call this method with the remaining string after the closing bracket
             return remainingFormat.substring(0, iOpenBracket) +
                     metaData +
                     partialFormat(remainingFormat.substring(iCloseBracket + 1), music);
