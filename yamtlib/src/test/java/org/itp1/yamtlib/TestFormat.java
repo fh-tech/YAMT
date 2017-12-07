@@ -5,16 +5,11 @@ import org.itp1.yamtlib.format.MusicFormatter;
 import org.itp1.yamtlib.music.WantedKey;
 import org.itp1.yamtlib.music.YamtMusic;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.mockito.Mockito.when;
 
@@ -24,11 +19,26 @@ public class TestFormat {
     private static YamtMusic wellTagged;
     private static YamtMusic throwsException;
     private static YamtMusic empty;
+    private static YamtMusic allNull;
 
     @BeforeClass
     public static void setup(){
+        File test = new File("/test.mp3");
         wellTagged = Mockito.mock(YamtMusic.class);
         throwsException = Mockito.mock(YamtMusic.class);
+        empty = Mockito.mock(YamtMusic.class);
+        allNull = Mockito.mock(YamtMusic.class);
+
+        when(wellTagged.getFile())
+                .thenReturn(test);
+        when(throwsException.getFile())
+                .thenReturn(test);
+        when(empty.getFile())
+                .thenReturn(test);
+        when(allNull.getFile())
+                .thenReturn(test);
+
+
         try {
             when(wellTagged.getTag(WantedKey.ALBUM))
                     .thenReturn("aLBum");
@@ -42,7 +52,20 @@ public class TestFormat {
             when(throwsException.getTag(Mockito.any()))
                     .thenThrow(new YamtException.MusicException("Mock Exception"));
 
-        }catch (Exception e){}
+
+            when(empty.getTag(WantedKey.ALBUM))
+                    .thenReturn("");
+
+            when(empty.getTag(WantedKey.ARTIST))
+                    .thenReturn("");
+
+            when(empty.getTag(WantedKey.TITLE))
+                    .thenReturn("");
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -70,7 +93,13 @@ public class TestFormat {
     }
 
     @Test(expected = YamtException.FormatException.class)
-    public void shouldRethrow() throws YamtException {
+    public void testShouldThrowExceptionOnEmptyMetaData() throws YamtException.FormatException {
+        MusicFormatter mf = new MusicFormatter("{artist}/{title}");
+        mf.format(empty);
+    }
+
+    @Test(expected = YamtException.FormatException.class)
+    public void shouldRethrowExceptionFromMusicFile() throws YamtException {
         MusicFormatter mf = new MusicFormatter("{artist}/{title}");
         mf.format(throwsException);
     }
