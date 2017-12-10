@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.swing.text.html.Option;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -27,8 +28,6 @@ public class TestConfig {
         Assert.assertEquals(config3.getOutDir(), Optional.of(Paths.get(".")));
         Assert.assertEquals(config3.getMusicDir(), Optional.of(Paths.get("..")));
         Assert.assertEquals(config3.getFormat(), Optional.of("hello"));
-
-
     }
 
     @Test

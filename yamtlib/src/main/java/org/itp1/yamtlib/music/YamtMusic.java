@@ -20,10 +20,20 @@ public class YamtMusic {
     private String format;
     private File file;
 
+    /**
+     * Used to create YamtMusic Objects.
+     * @param url absolute path to file as String
+     * @throws Exception
+     */
     public YamtMusic(String url) throws Exception {
         this(makeFile(url));
     }
 
+    /**
+     * Used to create YamtMusic Objects.
+     * @param f a File Object
+     * @throws YamtException.MusicException
+     */
     public YamtMusic(File f) throws YamtException.MusicException {
         try {
             if(f != null) {
