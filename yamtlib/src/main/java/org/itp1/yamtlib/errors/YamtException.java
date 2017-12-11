@@ -33,4 +33,21 @@ public class YamtException extends Exception {
             super(cause);
         }
     }
+
+    public static class MetaDataException extends YamtException {
+        public MetaDataException() {
+        }
+
+        public MetaDataException(String message) {
+            super(message);
+        }
+
+        public MetaDataException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public MetaDataException(Throwable cause) {
+            super(cause);
+        }
+    }
 }
