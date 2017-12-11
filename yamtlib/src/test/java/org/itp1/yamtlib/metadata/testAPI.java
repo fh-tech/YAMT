@@ -1,5 +1,6 @@
 package org.itp1.yamtlib.metadata;
 
+import org.apache.http.NameValuePair;
 import org.itp1.yamtlib.errors.YamtException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,7 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Scanner;
+import java.util.*;
 
 public class testAPI {
 
@@ -28,9 +29,9 @@ public class testAPI {
 
     @Test
     public void testBuildAPICall() {
+        MetaFetcher metaFetcher = new MetaFetcher();
         String duration = "333";
         String fp = "02385jflsnfl=932";
-        MetaFetcher metaFetcher = new MetaFetcher();
         String apiCall = metaFetcher.buildAPICall(duration, fp);
         String apiManual = "https://api.acoustid.org/v2/lookup?client=" +
                 metaFetcher.key +"&duration=" +
@@ -39,6 +40,23 @@ public class testAPI {
         Assert.assertTrue(apiManual.equals(apiCall));
         Assert.assertTrue(!apiManual.equals(""));
         System.out.println(apiManual);
+    }
+
+    // which map to use?
+    @Test
+    public void testBuildUrlParameters() {
+        MetaFetcher metaFetcher = new MetaFetcher();
+        String duration = "333";
+        String fp = "02385jflsnfl=932";
+        Map<String, String> pairs = new HashMap<String, String>();
+        // "=" added automatically
+        pairs.put("client", metaFetcher.key);
+        pairs.put("&duration", duration);
+        pairs.put("&fingerprint", fp);
+        pairs.put("&meta=", metaFetcher.getAllMeta());
+        Assert.assertTrue(!pairs.isEmpty());
+        List<NameValuePair> urlParameters = metaFetcher.buildUrlParameters(pairs);
+        System.out.println(urlParameters);
     }
 
 
