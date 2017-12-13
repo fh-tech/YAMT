@@ -11,18 +11,18 @@ public class ConfigFactory {
         try {
             return cg.generate();
         } catch (YamtException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
-    public YamtConfig generate(ConfigGenerator... generators) throws YamtException {
+    public static YamtConfig generate(ConfigGenerator... generators) throws YamtException {
         try {
             return Arrays.stream(generators)
                     .map(ConfigFactory::safeGenerate)
                     .reduce(new IncompleteYamtConfig(), IncompleteYamtConfig::merge)
                     .verify();
         } catch (RuntimeException e) {
-            throw new YamtException(e);
+            throw new YamtException.ConfigException("Could not generate YamtConfig" , e);
         }
     }
 }

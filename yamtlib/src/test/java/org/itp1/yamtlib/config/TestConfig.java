@@ -5,8 +5,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class TestConfig {
@@ -16,17 +17,17 @@ public class TestConfig {
         IncompleteYamtConfig config1 = new IncompleteYamtConfig();
         IncompleteYamtConfig config2 = new IncompleteYamtConfig();
 
-        config1.mergeFormat("hello");
-        config1.mergeOutDir(Paths.get("."));
+        config1.format("hello");
+        config1.outputDirectory(new File("."));
 
-        config2.mergeFormat("world");
-        config2.mergeMusicDir(Paths.get(".."));
+        config2.format("world");
+        config2.musicSource(Collections.singletonList(new File("..")));
 
         IncompleteYamtConfig config3 = config1.merge(config2);
 
-        Assert.assertEquals(config3.getOutDir(), Optional.of(Paths.get(".")));
-        Assert.assertEquals(config3.getMusicDir(), Optional.of(Paths.get("..")));
-        Assert.assertEquals(config3.getFormat(), Optional.of("hello"));
+        Assert.assertEquals(config3.outputDirectory(), new File("."));
+        Assert.assertEquals(config3.musicSource(), Collections.singletonList(new File("..")));
+        Assert.assertEquals(config3.format(), "hello");
 
 
     }
@@ -34,21 +35,25 @@ public class TestConfig {
     @Test
     public void testIncompleteVerify() {
         IncompleteYamtConfig config = new IncompleteYamtConfig();
-        Path musicPath = Paths.get(".");
-        Path outPath = Paths.get("..");
+        List<File> musicPath = Collections.singletonList(new File("."));
+        File outPath = new File("..");
         String format = "author-val";
 
-        config.setFormat(Optional.of(format));
-        config.setOutDir(Optional.of(outPath));
-        config.setMusicDir(Optional.of(musicPath));
+        config.format(format);
+        config.outputDirectory(outPath);
+        config.musicSource(musicPath);
+        config.moveOnRename(true);
+        config.strategy(MetaDataStrategy.FETCH_NEVER);
+        config.searchFilesRecursive(true);
+
 
         try {
             YamtConfig realConfig = config.verify();
 
-            Assert.assertEquals(realConfig.getMusicDir(), musicPath);
-            Assert.assertEquals(realConfig.getOutDir(), outPath);
+            Assert.assertEquals(realConfig.getMusicSource(), musicPath);
+            Assert.assertEquals(realConfig.getOutputDirectory(), outPath);
 
-            Assert.assertEquals(realConfig.getFormat(), format);
+            Assert.assertEquals(realConfig.getFormat(), Optional.of(format));
 
         } catch (YamtException e) {
             Assert.fail("Should fail, not complete Config");
@@ -58,7 +63,7 @@ public class TestConfig {
     @Test
     public void testIncompleteVerifyFail() {
         IncompleteYamtConfig config = new IncompleteYamtConfig();
-        config.setFormat(Optional.of("author-val"));
+        config.format("author-val");
         try {
             YamtConfig realConfig = config.verify();
             Assert.fail("Should fail, not complete Config");
@@ -68,16 +73,19 @@ public class TestConfig {
     }
 
     @Test
-    public void testConfigFactoryNotThrowsWhenAllOk() throws YamtException.ConfigException {
+    public void testConfigFactoryNotThrowsWhenAllOk() throws YamtException {
 
         IncompleteYamtConfig inc1 = new IncompleteYamtConfig();
-        inc1.mergeFormat("Hello");
+        inc1.format("Hello");
+        inc1.searchFilesRecursive(true);
 
         IncompleteYamtConfig inc2 = new IncompleteYamtConfig();
-        inc2.mergeMusicDir(Paths.get("."));
+        inc2.musicSource(Collections.singletonList(new File(".")));
+        inc2.strategy(MetaDataStrategy.FETCH_NEVER);
 
         IncompleteYamtConfig inc3 = new IncompleteYamtConfig();
-        inc3.mergeOutDir(Paths.get(".."));
+        inc3.outputDirectory(new File(".."));
+        inc3.moveOnRename(true);
 
         ConfigGenerator cfgGen1 = Mockito.mock(ConfigGenerator.class);
         Mockito.when(cfgGen1.generate()).thenReturn(inc1);
@@ -88,20 +96,18 @@ public class TestConfig {
         ConfigGenerator cfgGen3 = Mockito.mock(ConfigGenerator.class);
         Mockito.when(cfgGen3.generate()).thenReturn(inc3);
 
-        try {
-            YamtConfig ycfg = new ConfigFactory().generate(cfgGen1, cfgGen2, cfgGen3);
-        } catch (YamtException e) {
-            Assert.fail(e.getMessage());
-        }
+
+        YamtConfig ycfg = ConfigFactory.generate(cfgGen1, cfgGen2, cfgGen3);
+
     }
 
     @Test
     public void testConfigFactoryAbortWhenException() throws YamtException {
         IncompleteYamtConfig inc1 = new IncompleteYamtConfig();
-        inc1.mergeFormat("Hello");
+        inc1.format("Hello");
 
         IncompleteYamtConfig inc2 = new IncompleteYamtConfig();
-        inc2.mergeMusicDir(Paths.get("."));
+        inc2.musicSource(Collections.singletonList(new File(".")));
 
         ConfigGenerator cfgGen1 = Mockito.mock(ConfigGenerator.class);
         Mockito.when(cfgGen1.generate()).thenReturn(inc1);
@@ -112,10 +118,11 @@ public class TestConfig {
         ConfigGenerator cfgGen3 = Mockito.mock(ConfigGenerator.class);
         Mockito.when(cfgGen3.generate()).thenThrow(new YamtException.ConfigException("Test Error"));
         try {
-            YamtConfig ycfg = new ConfigFactory().generate(cfgGen1, cfgGen2, cfgGen3);
+            YamtConfig ycfg =ConfigFactory.generate(cfgGen1, cfgGen2, cfgGen3);
             Assert.fail("Did not throw exception");
         } catch (YamtException e) {
             Assert.assertEquals(true, true);
+            Assert.assertEquals("Test Error", e.getCause().getCause().getMessage());
         }
     }
 

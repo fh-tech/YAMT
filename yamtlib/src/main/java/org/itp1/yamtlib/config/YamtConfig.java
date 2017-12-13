@@ -1,8 +1,13 @@
 package org.itp1.yamtlib.config;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
-import java.nio.file.Path;
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The Configuration of the Yamt application.
@@ -12,15 +17,28 @@ import java.nio.file.Path;
  * This Config is only in a complete state and cannot be constructed incomplete.
  */
 @Value
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class YamtConfig {
 
     @NonNull
-    private final Path musicDir;
+    private final List<File> musicSource;
 
     @NonNull
-    private final Path outDir;
+    private final File outputDirectory;
 
     private final String format;
+
+    @NonNull
+    private final Boolean searchFilesRecursive;
+
+    @NonNull
+    private final Boolean moveOnRename;
+
+    @NonNull
+    private final MetaDataStrategy strategy;
+
+    @NonNull public Optional<String> getFormat(){
+        return Optional.ofNullable(format);
+    }
+
 }
