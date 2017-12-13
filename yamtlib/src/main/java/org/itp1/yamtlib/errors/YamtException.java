@@ -1,7 +1,5 @@
 package org.itp1.yamtlib.errors;
 
-import java.io.File;
-
 public class YamtException extends Exception {
 
     public YamtException() {
@@ -48,4 +46,39 @@ public class YamtException extends Exception {
             super(cause);
         }
     }
+
+    public static class MusicException extends YamtException {
+        public MusicException() {
+        }
+
+        public MusicException(String message) {
+            super(message);
+        }
+
+        public MusicException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public MusicException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    public static class FormatException extends YamtException {
+        public FormatException() {
+        }
+
+        public FormatException(String message) {
+            super(message);
+        }
+
+        public FormatException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public FormatException(Throwable cause) {
+            super(cause);
+        }
+    }
+
 }
