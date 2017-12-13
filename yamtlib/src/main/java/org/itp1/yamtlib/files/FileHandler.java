@@ -1,6 +1,5 @@
 package org.itp1.yamtlib.files;
 import lombok.NonNull;
-import org.apache.commons.io.FilenameUtils;
 import org.itp1.yamtlib.config.YamtConfig;
 import org.itp1.yamtlib.errors.YamtException;
 
@@ -41,7 +40,7 @@ public class FileHandler {
         return collectFiles(files, true, true);
     }
 
-    public List<File> collectFilesRecursive(File file) throws YamtException.FilesException {
+    public List<File> collectFilesRecursive(@NonNull File file) throws YamtException.FilesException {
         return collectFilesRecursive(new ArrayList<>(Arrays.asList(file)));
     }
 
@@ -104,6 +103,6 @@ public class FileHandler {
     private boolean isFileExtensionSupported(@NonNull File f) {
         // TODO: get real list of supported Extentions, all in lowercase
         String[] validExtentions = new String[]{"mp3", "wav", "ogg"};
-        return Arrays.asList(validExtentions).contains(FilenameUtils.getExtension(f.getPath()).toLowerCase());
+        return false;
     }
 }
