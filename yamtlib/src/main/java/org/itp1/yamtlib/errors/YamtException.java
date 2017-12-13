@@ -50,4 +50,21 @@ public class YamtException extends Exception {
             super(cause);
         }
     }
+
+    public static class MusicException extends YamtException {
+        public MusicException() {
+        }
+
+        public MusicException(String message) {
+            super(message);
+        }
+
+        public MusicException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public MusicException(Throwable cause) {
+            super(cause);
+        }
+    }
 }
