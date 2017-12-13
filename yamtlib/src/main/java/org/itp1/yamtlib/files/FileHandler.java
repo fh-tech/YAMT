@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class FileHandler {
@@ -16,116 +17,93 @@ public class FileHandler {
 
     }
 
-    public FileHandler(YamtConfig config) {
-        // TODO: save config in FileHandler class?
-    }
 
     /***
-     *
-     * @param paths
+     * Call function
+     * @param cfg
      * @return
      * @throws YamtException.FilesException
      */
-    public List<File> collectViaConfig(String paths[]) throws YamtException.FilesException {
-        boolean config_boolean_placeholder = false;
-        return collectFiles(paths, config_boolean_placeholder);
+    /*
+    public List<File> collectViaConfig(YamtConfig cfg) throws YamtException.FilesException {
+        return collectViaConfig(cfg.getMusicDir(), cfg.recursive());
     }
+    */
 
-    public List<File> collectViaConfig(String path) throws YamtException.FilesException {
-        return collectViaConfig(new String[]{path});
-    }
 
     /***
-     *
-     * @param paths
+     * Call function
+     * @param files
      * @return
      * @throws YamtException.FilesException
      */
-    public List<File> collectFilesRecursive(String paths[]) throws YamtException.FilesException {
-        return collectFiles(paths, true);
+    public List<File> collectFilesRecursive(List<File> files) throws YamtException.FilesException {
+        return collectFiles(files, true, true);
     }
 
-    public List<File> collectFilesRecursive(String path) throws YamtException.FilesException {
-        return collectFilesRecursive(new String[]{path});
-    }
-
-    /***
-     *
-     * @param paths
-     * @return
-     * @throws YamtException.FilesException
-     */
-    public List<File> collectFilesNonRecursive(String paths[]) throws YamtException.FilesException {
-        return collectFiles(paths, false);
-    }
-
-    public List<File> collectFilesNonRecursive(String path) throws YamtException.FilesException {
-        return collectFilesNonRecursive(new String[]{path});
+    public List<File> collectFilesRecursive(File file) throws YamtException.FilesException {
+        return collectFilesRecursive(new ArrayList<>(Arrays.asList(file)));
     }
 
     /***
-     *
-     * @param paths
-     * @param searchRecursive
+     * Call function
+     * @param files
      * @return
      * @throws YamtException.FilesException
      */
-    private List<File> collectFiles(@NonNull String paths[], boolean searchRecursive) throws YamtException.FilesException {
-        List<File> collectedFiles = new ArrayList<>();
+    public List<File> collectFilesNonRecursive(List<File> files) throws YamtException.FilesException {
+        return collectFiles(files, false, true);
+    }
 
-        try {
-            for (final String path : paths) {
-                File fileOrFolder = new File(path);
+    public List<File> collectFilesNonRecursive(File file) throws YamtException.FilesException {
+        return collectFilesNonRecursive(new ArrayList<>(Arrays.asList(file)));
+    }
 
-                if (fileOrFolder.exists()) {
-                    if (fileOrFolder.isFile()) {
-                        addFileToCollection(collectedFiles, fileOrFolder);
-                    } else {
-                        if (searchRecursive) {
-                            collectFiles(new String[]{fileOrFolder.getAbsolutePath()}, searchRecursive);
-                        }
+    /***
+     * Collects all files from the filesystem that are included in files, if recursive is set
+     * folders get searched recursively and files get collected
+     * Files with an unsupported file extensions get ignored
+     * @param files List of files and/or folders which get collected
+     * @param searchRecursive Decides if folders get searched recursively
+     * @param isTopLevel To collect from folders in param files by using the function once recursively with listFiles()
+     * @return A collection of files
+     * @throws YamtException.FilesException when file/folder doesn't exist, file is not readable, file is not writable
+     */
+    private List<File> collectFiles(@NonNull List<File> files, boolean searchRecursive, boolean isTopLevel) throws YamtException.FilesException {
+        HashSet<File> collectedFiles = new HashSet<>();
+
+        for (final File fileOrFolder : files) {
+            if (fileOrFolder.canRead() && fileOrFolder.canWrite()) {
+                if (fileOrFolder.isFile()) {
+                    if (isFileExtensionSupported(fileOrFolder)){
+                        collectedFiles.add(fileOrFolder);
+                    }
+                } else {
+                    if (searchRecursive || isTopLevel) {
+                        collectedFiles.addAll(collectFiles(Arrays.asList(fileOrFolder.listFiles()), searchRecursive, false));
                     }
                 }
-                else {
-                    // TODO: error message for nonexistent path?
-                    throw new YamtException.FilesException("Nonexistent File or Folder");
+            } else {
+                if (!fileOrFolder.exists()) {
+                    throw new YamtException.FilesException("Nonexistent File or Folder [" + fileOrFolder.getAbsolutePath() + "]");
+                } else if (!fileOrFolder.canRead()) {
+                    throw new YamtException.FilesException("File is not readable [" + fileOrFolder.getAbsolutePath() + "]");
+                } else if (!fileOrFolder.canWrite()) {
+                    throw new YamtException.FilesException("File is not writable [" + fileOrFolder.getAbsolutePath() + "]");
                 }
             }
-        } catch (YamtException.FilesException fe) {
-            throw fe;
         }
-        return collectedFiles;
+        return new ArrayList<File>(collectedFiles);
     }
 
     /***
-     *
-     * @param collection
-     * @param f
+     * Checks if file has a supported extension
+     * @param f file of which to check extension
+     * @return whether or not file extension is supported
      */
-    private void addFileToCollection(List<File> collection, File f) {
-        try {
-            if (isFileTypeSupported(f) && !collection.contains(f)) {
-                collection.add(f);
-            }
-        } catch (NullPointerException e) {
-            throw e;
-        }
+    private boolean isFileExtensionSupported(@NonNull File f) {
+        // TODO: get real list of supported Extentions, all in lowercase
+        String[] validExtentions = new String[]{"mp3", "wav", "ogg"};
+        return Arrays.asList(validExtentions).contains(FilenameUtils.getExtension(f.getPath()).toLowerCase());
     }
-
-    /***
-     *
-     * @param f
-     * @return
-     */
-    private boolean isFileTypeSupported(File f) {
-        try {
-            // TODO: get real list of supported Extentions, all in lowercase
-            String[] validExtentions = new String[]{"mp3", "wav", "ogg"};
-            return Arrays.asList(validExtentions).contains(FilenameUtils.getExtension(f.getPath()).toLowerCase());
-        } catch (NullPointerException e) {
-            throw e;
-        }
-    }
-
 }
-
