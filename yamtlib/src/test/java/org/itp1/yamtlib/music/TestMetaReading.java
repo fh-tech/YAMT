@@ -26,6 +26,7 @@ public class TestMetaReading extends TestMeta {
         }
     }
 
+    //sets and gets a testObject
     @Test
     public void testGetterSetter() {
         YamtMusic yamtMusic;
@@ -46,6 +47,7 @@ public class TestMetaReading extends TestMeta {
     }
 
 
+    // only to look up all possible Fields
     @Ignore
     @Test
     public void printAllAvailableFields() {
