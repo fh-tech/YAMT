@@ -2,12 +2,9 @@ package org.itp1.yamtcli.config;
 
 
 import org.apache.commons.cli.*;
-import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.config.ConfigGenerator;
 import org.itp1.yamtlib.config.IncompleteYamtConfig;
-
-import java.nio.file.Paths;
-import java.util.Optional;
+import org.itp1.yamtlib.errors.YamtException;
 
 
 /**
@@ -61,24 +58,7 @@ public class CliConfigGenerator implements ConfigGenerator {
      */
     @Override
     public IncompleteYamtConfig generate() throws YamtException.ConfigException {
-        try {
-            // Represents the program options with passed arguments
-            CommandLine cl = parseCli();
-            IncompleteYamtConfig cfg = new IncompleteYamtConfig();
-
-            cfg.setOutDir(Optional.ofNullable(cl.getOptionValue('o'))
-                    .map(Paths::get));
-
-            cfg.setMusicDir(Optional.ofNullable(cl.getOptionValue('m'))
-                    .map(Paths::get));
-
-            cfg.setFormat(Optional.ofNullable(cl.getOptionValue('f')));
-
-            return cfg;
-
-        } catch (Exception e) {
-            throw new YamtException.ConfigException("Unable to build CLI org.itp1.config: " + e.getMessage(), e);
-        }
+      return null;
     }
 }
 
