@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +37,9 @@ public class YamtConfig {
 
     @NonNull
     private final MetaDataStrategy strategy;
+
+    @NonNull
+    private final List<String> supportedExtension = Arrays.asList("mp3", "flac", "ogg", "wav");
 
     @NonNull public Optional<String> getFormat(){
         return Optional.ofNullable(format);
