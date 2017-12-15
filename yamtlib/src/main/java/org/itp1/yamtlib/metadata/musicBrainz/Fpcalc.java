@@ -1,4 +1,4 @@
-package org.itp1.yamtlib.metadata;
+package org.itp1.yamtlib.metadata.musicBrainz;
 
 import lombok.Getter;
 

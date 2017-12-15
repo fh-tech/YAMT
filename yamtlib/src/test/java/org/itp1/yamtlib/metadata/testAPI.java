@@ -4,41 +4,66 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.GetRequest;
-import org.apache.http.NameValuePair;
 import org.itp1.yamtlib.errors.YamtException;
+import org.itp1.yamtlib.metadata.musicBrainz.Fpcalc;
+import org.itp1.yamtlib.metadata.musicBrainz.MusicBrainz;
+import org.itp1.yamtlib.music.TestMeta;
+import org.itp1.yamtlib.music.YamtMusic;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.itp1.yamtlib.metadata.MetaFetcher.url;
+public class testAPI extends TestMeta {
 
-public class testAPI {
+    private static List<YamtMusic> testMusic;
 
+    @Before
     @Test
-    public void testFetchFPDur() {
-        MetaFetcher metaFetcher = new MetaFetcher();
+    public void buildTestYamtMusic() {
+        testMusic = Arrays.stream(testFiles)
+                .map((f) -> {
+                    try {
+                        return new YamtMusic(f);
+                    } catch (YamtException.MusicException e) {
+                        Assert.fail();
+                    }
+                    Assert.fail();
+                    return null;
+                })
+                .collect(Collectors.toList());
     }
 
     @Test
-    public void test() {
-        System.out.println(System.getProperty("os.name"));
+    public void printTestMusic() {
+        testMusic.stream()
+                .map((yM) -> yM.getFile())
+                .forEach((f) -> System.out.println(f));
     }
 
-    @Test
-    public void test2() {
-        MetaFetcher metaFetcher = new MetaFetcher();
+   /* @Test
+    public void testii() {
+        MusicBrainz musicBrainz = new MusicBrainz();
         try {
-            Fpcalc program = metaFetcher.getProgram();
+            List<String> absPaths = musicBrainz.fetchFP(testMusic);
+        } catch (YamtException.MetaDataException e) {
+            e.printStackTrace();
+        }
+    }*/
+
+    /*@Test
+    public void test2() {
+        MusicBrainz musicBrainz = new MusicBrainz();
+        try {
+            Fpcalc program = musicBrainz.getProgram();
             System.out.println(program.getProgramFile().getAbsolutePath());
         } catch (YamtException.MetaDataException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Test
     public void makeCall() {
