@@ -15,7 +15,7 @@ import java.util.*;
 @NoArgsConstructor
 public class MusicBrainz {
 
-    public Map<YamtMusic, AccousticFingerprint> fetchFP(List<YamtMusic> music) throws YamtException.MetaDataException {
+    public Map<YamtMusic, AccousticFingerprint> makeMusicBrainz(List<YamtMusic> music) throws YamtException.MetaDataException {
         List<String> absPaths = fetchAbsPaths(music);
         List<AccousticFingerprint> accousticFPs = fetchFPs(absPaths);
         Map<YamtMusic, AccousticFingerprint> musicBrainz = mapFPtoMusic(music, accousticFPs);
@@ -23,20 +23,21 @@ public class MusicBrainz {
         return musicBrainz;
     }
 
+    // collects all the absPaths from the music
     private List<String> fetchAbsPaths(List <YamtMusic> yM) throws YamtException.MetaDataException {
         List<String> absPaths = new ArrayList<>();
         Fpcalc program = getProgram();
         //pass the path to program
         absPaths.add(program.getProgramFile().getAbsolutePath());
-        // want to pass -json
+        //pass -json for output formatting
         absPaths.add("-json");
         yM.stream()
                 .map((m) -> m.getFile().getAbsolutePath())
                 .forEach(absPaths::add);
         return absPaths;
-
     }
 
+    // calls a command with the given list
     private List<AccousticFingerprint> fetchFPs(List<String> absPaths) throws YamtException.MetaDataException {
         List<AccousticFingerprint> accousticFPs = new ArrayList<>();
 
@@ -58,14 +59,16 @@ public class MusicBrainz {
         return accousticFPs;
     }
 
-    private Map<YamtMusic, AccousticFingerprint> mapFPtoMusic(List<YamtMusic> yM, List<AccousticFingerprint> aF) {
-        Map<YamtMusic, AccousticFingerprint> mappedMusic = new TreeMap<YamtMusic, AccousticFingerprint>();
+    // maps a list of YamtMusic to a list of AccousticFingerprints
+    private Map<YamtMusic, AccousticFingerprint> mapFPtoMusic(List<YamtMusic> yM, List<AccousticFingerprint> aF)  {
+        Map<YamtMusic, AccousticFingerprint> mappedMusic = new LinkedHashMap<>();
         for(int i = 0; i < yM.size(); i++) {
             mappedMusic.put(yM.get(i), aF.get(i));
         }
         return mappedMusic;
     }
 
+    // gets the appropriate executable for the current operating system
     private Fpcalc getProgram() throws YamtException.MetaDataException {
         String os = System.getProperty("os.name").toLowerCase();
         if(os.contains("windows")) {
