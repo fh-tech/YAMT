@@ -1,13 +1,10 @@
 package org.itp1.yamtlib.metadata;
 
-import org.json.JSONObject;
+import org.itp1.yamtlib.errors.YamtException;
+import org.itp1.yamtlib.music.WantedKey;
 
-public interface MetaExtractor {
+public interface MetaExtractor<J> {
 
-    String extractArtist(JSONObject json);
-
-    String extractAlbum(JSONObject json);
-
-    String extractTitle(JSONObject json);
+    String extract(WantedKey key, J j) throws YamtException.MetaDataException;
 
 }

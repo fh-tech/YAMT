@@ -13,14 +13,12 @@ import java.io.Reader;
 import java.util.*;
 
 @NoArgsConstructor
-public class MusicBrainz {
+public class Fingerprinter {
 
-    public Map<YamtMusic, AccousticFingerprint> makeMusicBrainz(List<YamtMusic> music) throws YamtException.MetaDataException {
+    public Map<YamtMusic, AccousticFingerprint> mapFingerPrints(List<YamtMusic> music) throws YamtException.MetaDataException {
         List<String> absPaths = fetchAbsPaths(music);
         List<AccousticFingerprint> accousticFPs = fetchFPs(absPaths);
-        Map<YamtMusic, AccousticFingerprint> musicBrainz = mapFPtoMusic(music, accousticFPs);
-
-        return musicBrainz;
+        return mapFPtoMusic(music, accousticFPs);
     }
 
     // collects all the absPaths from the music
