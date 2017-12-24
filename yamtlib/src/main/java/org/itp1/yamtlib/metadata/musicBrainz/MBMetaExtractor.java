@@ -6,12 +6,20 @@ import org.itp1.yamtlib.music.WantedKey;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
+// results seem to be ordered by score, so taking the first seems to be the best choice
 public class MBMetaExtractor implements MetaExtractor<JSONObject> {
 
 
+    /**
+     * checks if json is valid (status) and then extracts metadata from it
+     * @param key the key indicates which type of metadata should be extracted
+     * @param j the json that should be used
+     * @return String extract-result will be "" if nothing was found
+     * @throws YamtException.MetaDataException
+     */
     @Override
     public String extract(WantedKey key, JSONObject j) throws YamtException.MetaDataException {
-        System.out.println(j);
         if(valid(j)) {
             switch (key) {
                 case ARTIST:
@@ -28,71 +36,163 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
         }
     }
 
+    /**
+     * goes through as many entries in the resultJSONArray and its corresponding recordingsArrays and artistsArrays until the artist value is not empty anymore
+     * since the first result should be the most accurate one but can be empty by mistake
+     * @param json the json result that should be searched
+     * @return returns a String for the artist - empty string if nothing was found
+     */
     private String extractArtist(JSONObject json) {
         String artist = "";
-        JSONObject recording = getRecording(json);
-        if(recording != null) {
-            if(recording.has("artists")) {
-                JSONArray artists = recording.getJSONArray("artists");
-                // if more artist entries one could be feat.
-                if (artists.length() > 1) {
+        int i = 0;
+        int resultSize = getInstanceSize(json, "results");
+        while("".equals(artist) && i < resultSize) {
+            JSONObject result = getResult(json, i);
+            int f = 0;
+            int recordingSize = getInstanceSize(result, "recordings");
+            while("".equals(artist) && f < recordingSize) {
+                JSONObject recording = getRecording(result, f);
+                int artistsSize = getInstanceSize(recording, "artists");
+                JSONObject artistObj;
+                if (artistsSize > 1) {
                     String feat = "";
-                    for (int i = 0; i < artists.length(); i++) {
-                        if (artists.getJSONObject(i).has("joinphrase")) {
-                            feat = " feat. " + artists.getJSONObject(i).get("name").toString();
+                    for (int j = 0; j < artistsSize; j++) {
+                        artistObj = getArtists(recording, j);
+                        if (artistObj.has("joinphrase")) {
+                            feat = " feat. " + artistObj.get("name").toString();
                         } else {
-                            artist = artists.getJSONObject(i).get("name").toString();
+                            artist = artistObj.get("name").toString();
                         }
                     }
                     artist = artist + feat;
                 } else {
-                    artist = artists.getJSONObject(0).get("name").toString();
+                    artistObj = getArtists(recording, 0);
+                    if(artistObj != null && artistObj.has("name")) {
+                        artist = artistObj.get("name").toString();
+                    }
                 }
+                f++;
             }
+            i++;
         }
         System.out.println("Artist: " + artist);
         return artist;
     }
 
+    /**
+     * goes through as many entries in the resultJSONArray and its corresponding recordingsArrays and artistsArrays until the title value is not empty anymore
+     * since the first result should be the most accurate one but can be empty by mistake
+     * @param json the json result that should be searched
+     * @return returns a String for the artist - empty string if nothing was found
+     */
     private String extractTitle(JSONObject json) {
         String title = "";
-        JSONObject recording = getRecording(json);
-        if(recording != null) {
-            title = recording.get("title").toString();
+        int i = 0;
+        int resultSize = getInstanceSize(json, "results");
+        while("".equals(title) && i < resultSize) {
+            JSONObject result = getResult(json, i);
+            int f = 0;
+            int recordingSize = getInstanceSize(result, "recordings");
+            while("".equals(title) && f < recordingSize) {
+                JSONObject recording = getRecording(result, f);
+                if(recording.has("title")) {
+                    title = recording.get("title").toString();
+                }
+                f++;
+            }
+            i++;
         }
         System.out.println("Title: " + title);
         return title;
     }
 
+    /**
+     * goes through as many entries in the resultJSONArray and its corresponding recordingsArrays and artistsArrays until the album value is not empty anymore
+     * since the first result should be the most accurate one but can be empty
+     * @param json the json result that should be searched
+     * @return returns a String for the artist - empty string if nothing was found
+     */
     private String extractAlbum(JSONObject json) {
         String album = "";
-        JSONObject recording = getRecording(json);
-        if(recording != null) {
-            if(recording.has("releasegroups")) {
-                JSONArray jAr = recording.getJSONArray("releasegroups");
-                if(jAr.length() > 0) {
-                    JSONObject releaseGroups = jAr.getJSONObject(0);
-                    album = releaseGroups.get("title").toString();
+        int i = 0;
+        int resultSize = getInstanceSize(json, "results");
+        while ("".equals(album) && i < resultSize) {
+            JSONObject result = getResult(json, i);
+            int f = 0;
+            int recordingSize = getInstanceSize(result, "recordings");
+            while ("".equals(album) && f < recordingSize) {
+                JSONObject recording = getRecording(result, f);
+                int g = 0;
+                int releaseGroupsSize = getInstanceSize(recording,"releasegroups");
+                while ("".equals(album) && g < releaseGroupsSize) {
+                    JSONObject releaseGroup = getReleaseGroups(recording, g);
+                    if(releaseGroup.has("title")) {
+                        album = releaseGroup.getString("title");
+                    }
+                    g++;
                 }
+                f++;
             }
+            i++;
         }
         System.out.println("Album: " + album);
         return album;
     }
 
-    private JSONObject getRecording(JSONObject json) {
+
+    private JSONObject getResult(JSONObject json, int instance) {
         if(json.has("results")) {
             JSONArray jAr = json.getJSONArray("results");
-            if(jAr.length() > 0) {
-                json = jAr.getJSONObject(0);
-                if(json.has("recordings")) {
-                    return json.getJSONArray("recordings").getJSONObject(0);
-                }
+            if (jAr.length() > instance) {
+                json = jAr.getJSONObject(instance);
+                return json;
             }
         }
         return null;
     }
 
+    private JSONObject getRecording(JSONObject result, int instance) {
+        if(result.has("recordings")) {
+            return result.getJSONArray("recordings").getJSONObject(instance);
+        }
+        return null;
+    }
+
+    private JSONObject getReleaseGroups(JSONObject recording, int instance) {
+        if(recording.has("releasegroups")) {
+            return recording.getJSONArray("releasegroups").getJSONObject(instance);
+        }
+        return null;
+    }
+
+
+    private JSONObject getArtists(JSONObject recording, int instance) {
+        if(recording.has("artists")) {
+            return recording.getJSONArray("artists").getJSONObject(instance);
+        }
+        return null;
+    }
+
+    /**
+     * to determine the amount of elements for a certain Array in a json (does not go up or down in hierarchy
+     * @param json the json in which the search should take place
+     * @param key the key that should be searched
+     * @return size of the array or 0 if the key was not found
+     */
+    private int getInstanceSize(JSONObject json, String key) {
+        int size = 0;
+        if(json.has(key)) {
+            JSONArray jAr = json.getJSONArray(key);
+            size = jAr.length();
+        }
+        return size;
+    }
+
+    /**
+     * Checks if the json status is not an error
+     * @param json
+     * @return boolean
+     */
     private boolean valid(JSONObject json) {
         if(json.has("status")) {
             if(json.get("status") != "error") {

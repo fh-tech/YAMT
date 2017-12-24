@@ -22,13 +22,16 @@ public class testMetaData {
 
     //lossy formats
     private static final String TEST_MP3 = "test.mp3";
+    private static final String TEST_MP3_2 = "freaky_like_me.mp3";
+    private static final String TEST_MP3_3 = "like_a_g6.mp3";
+    private static final String TEST_MP3_4 = "work_it_out.mp3";
     //lossless
     private static final String TEST_FLAC = "test.flac";
     private static final String TEST_FLAC2 = "test2.flac";
 
-    private static final String[] fileNames = {TEST_MP3, TEST_FLAC, TEST_FLAC2};
-    private static final File[] testFiles_real = new File[3];
-    private static File[] testFiles = new File[3];
+    private static final String[] fileNames = {TEST_MP3, TEST_MP3_2, TEST_MP3_3, TEST_MP3_4, TEST_FLAC, TEST_FLAC2};
+    private static final File[] testFiles_real = new File[6];
+    private static File[] testFiles = new File[6];
 
     private static List<YamtMusic> testMusic;
 
@@ -78,6 +81,7 @@ public class testMetaData {
             }
         } catch (YamtException.MetaDataException e) {
             e.printStackTrace();
+            Assert.fail();
         }
     }
 
