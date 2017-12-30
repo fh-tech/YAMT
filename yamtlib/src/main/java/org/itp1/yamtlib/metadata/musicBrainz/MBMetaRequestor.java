@@ -46,6 +46,7 @@ public class MBMetaRequestor implements MetaRequestor<Map<YamtMusic, AccousticFi
                 rateLimiter.acquire(1);
                 response = Unirest.get(request)
                         .asJson();
+                System.out.println(response.getBody().getObject());
                 yamtJSON.put(music, response.getBody().getObject());
             }
             return yamtJSON;

@@ -1,5 +1,6 @@
 package org.itp1.yamtlib.metadata;
 
+import lombok.Getter;
 import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.music.WantedKey;
 
@@ -7,7 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 
+@Getter
 public class MetaTemplate<T, J> {
+
+    public Map<WantedKey, String> getApiMeta() {
+        return apiMeta;
+    }
+
 
     private Map<WantedKey, String> apiMeta;
 
@@ -17,7 +24,9 @@ public class MetaTemplate<T, J> {
     public MetaTemplate() {
         apiMeta = new LinkedHashMap<>();
         for(WantedKey key : WantedKey.values()) {
-            this.setValue(key, "");
+            if(key.isFetchable()) {
+                this.setValue(key, "");
+            }
         }
     }
 
@@ -39,11 +48,22 @@ public class MetaTemplate<T, J> {
     }
 
     private void setValue(WantedKey key, String newValue) {
-        this.apiMeta.put(key, newValue);
+        if(key.isFetchable()) {
+            this.apiMeta.put(key, newValue);
+        }
     }
 
+    /**
+     * returns the value that is currently at WantedKeys position
+     * @param key WantedKey should be fetchable
+     * @return the value at WantedKey and if the key is not fetchable ""
+     */
     public String getValue(WantedKey key) {
-        return this.apiMeta.get(key);
+        if(key.isFetchable()) {
+            return this.apiMeta.get(key);
+        } else {
+            return "";
+        }
     }
 
 }
