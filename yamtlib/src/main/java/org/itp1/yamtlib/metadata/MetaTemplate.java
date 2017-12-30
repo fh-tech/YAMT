@@ -42,7 +42,7 @@ public class MetaTemplate<T, J> {
         this.apiMeta.put(key, newValue);
     }
 
-    private String getValue(WantedKey key) {
+    public String getValue(WantedKey key) {
         return this.apiMeta.get(key);
     }
 

@@ -19,7 +19,6 @@ public class YamtMusic {
     private Tag tags;
     private String format;
     private File file;
-
     /**
      * Used to create YamtMusic Objects.
      * @param url absolute path to file as String
