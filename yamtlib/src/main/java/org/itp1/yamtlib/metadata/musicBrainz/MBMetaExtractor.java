@@ -6,6 +6,8 @@ import org.itp1.yamtlib.music.WantedKey;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 
 // results seem to be ordered by score, so taking the first seems to be the best choice
 public class MBMetaExtractor implements MetaExtractor<JSONObject> {
@@ -55,16 +57,22 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
                 int artistsSize = getInstanceSize(recording, "artists");
                 JSONObject artistObj;
                 if (artistsSize > 1) {
+                    String joinphrase = "";
                     String feat = "";
                     for (int j = 0; j < artistsSize; j++) {
                         artistObj = getArtists(recording, j);
                         if (artistObj.has("joinphrase")) {
-                            feat = " feat. " + artistObj.get("name").toString();
+                            joinphrase = artistObj.get("joinphrase").toString();
+                            if (artistObj.has("name")) {
+                                artist = artistObj.get("name").toString();
+                            }
                         } else {
-                            artist = artistObj.get("name").toString();
+                            if(artistObj.has("name")) {
+                                feat = artistObj.get("name").toString();
+                            }
                         }
                     }
-                    artist = artist + feat;
+                    artist = artist + joinphrase + feat;
                 } else {
                     artistObj = getArtists(recording, 0);
                     if(artistObj != null && artistObj.has("name")) {
@@ -75,7 +83,7 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             }
             i++;
         }
-        System.out.println("Artist: " + artist);
+        /*System.out.println("Artist: " + artist);*/
         return artist;
     }
 
@@ -102,7 +110,7 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             }
             i++;
         }
-        System.out.println("Title: " + title);
+        /*System.out.println("Title: " + title);*/
         return title;
     }
 
@@ -135,7 +143,7 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             }
             i++;
         }
-        System.out.println("Album: " + album);
+        /*System.out.println("Album: " + album);*/
         return album;
     }
 
@@ -189,13 +197,13 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
     }
 
     /**
-     * Checks if the json status is not an error
+     * Checks if the json status is ok
      * @param json
      * @return boolean
      */
     private boolean valid(JSONObject json) {
         if(json.has("status")) {
-            if(json.get("status") != "error") {
+            if("ok".equals(json.get("status").toString())) {
                 return true;
             }
         }

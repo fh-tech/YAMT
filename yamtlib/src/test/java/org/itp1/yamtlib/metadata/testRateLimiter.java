@@ -9,7 +9,7 @@ public class testRateLimiter {
     @Test
     // 3 requests per second are allowed to accoustid so if 7 are made it needs to take more than 2 secs and if you make 3 it needs to take more than 1 sec
     public void testRateLimiter() {
-        RateLimiter rateLimiter = RateLimiter.create(2.9); // rate is "3 permits per second"
+        RateLimiter rateLimiter = RateLimiter.create(2.98); // rate is "2.98 permits per second"
 
         long startTime = System.nanoTime();
         for(int i = 0; i < 7; i++) {

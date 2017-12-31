@@ -34,9 +34,9 @@ public class MBMetaRequestor implements MetaRequestor<Map<YamtMusic, AccousticFi
      */
     @Override
     public Map<YamtMusic, JSONObject> fetchMetaData(Map<YamtMusic, AccousticFingerprint> yamtFP) throws YamtException.MetaDataException {
-        Map<YamtMusic, JSONObject> yamtJSON = new LinkedHashMap<>();
-        HttpResponse<JsonNode> response = null;
         try {
+            Map<YamtMusic, JSONObject> yamtJSON = new LinkedHashMap<>();
+            HttpResponse<JsonNode> response = null;
             for(YamtMusic music : yamtFP.keySet()) {
                 String request = url + "?client="
                         + key + "&meta="
@@ -46,7 +46,6 @@ public class MBMetaRequestor implements MetaRequestor<Map<YamtMusic, AccousticFi
                 rateLimiter.acquire(1);
                 response = Unirest.get(request)
                         .asJson();
-                System.out.println(response.getBody().getObject());
                 yamtJSON.put(music, response.getBody().getObject());
             }
             return yamtJSON;
