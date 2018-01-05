@@ -38,5 +38,12 @@ public enum WantedKey {
         this.template = template;
     }
 
+    public static WantedKey fromTemplateString(String s) throws YamtException.MusicException{
+        for(WantedKey key : WantedKey.values()){
+            if(key.template.equals(s))
+                return key;
+        }
+        throw new YamtException.MusicException("No metadata for template " + s);
+    }
 
 }

@@ -1,25 +1,25 @@
 package org.itp1.yamtlib;
 
-import org.hamcrest.CoreMatchers;
 import org.itp1.yamtlib.config.YamtConfig;
 import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.files.FileHandler;
 import org.itp1.yamtlib.format.FormatResult;
 import org.itp1.yamtlib.format.MusicFormatter;
 import org.itp1.yamtlib.metadata.MetaFetcher;
-import org.itp1.yamtlib.metadata.MetaRequestor;
 import org.itp1.yamtlib.metadata.MetaTemplate;
-import org.itp1.yamtlib.metadata.musicBrainz.MBMetaRequestor;
 import org.itp1.yamtlib.music.YamtMusic;
 import org.itp1.yamtlib.util.YamtUtils;
-import org.jaudiotagger.audio.exceptions.CannotWriteException;
 
 import java.io.File;
-import java.nio.file.CopyOption;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,10 +29,11 @@ import static org.itp1.yamtlib.util.YamtUtils.sneakyThrow;
 public class Yamt {
 
     public void runYamt(YamtConfig cfg) throws YamtException {
+        Logger.getLogger("org.jaudiotagger").setLevel(Level.OFF);
         Stream<File> files = new FileHandler().collectViaConfig(cfg).stream();
 
         if (!cfg.getMoveOnRename()) {
-            files = files.map(sneakyThrow(Yamt::moveToTmp));
+            files = files.map(sneakyThrow(Yamt::copyToTmp));
         }
 
         Stream<YamtMusic> musicStream = files.map(
@@ -42,42 +43,37 @@ public class Yamt {
 
         List<YamtMusic> musicList = handleMetaData(musicStream.collect(Collectors.toList()), cfg);
 
-        if(cfg.getFormat().isPresent()) {
+        if (cfg.getFormat().isPresent()) {
 
-            Map<YamtMusic, String> fromattedMusic = formatMusic(musicList, cfg.getFormat().get()).getSuccess();
-
-            copyFiles();
-
-        }else{
-            for(YamtMusic m: musicList){
-                try {
-                    m.getAudioFile().commit();
-                } catch (CannotWriteException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-            System.out.println("Finished!");
+            Map<YamtMusic, String> formattedMusic = formatMusic(musicList, cfg.getFormat().get()).getSuccess();
+            formattedMusic.forEach(
+                    sneakyThrow(
+                            (y, s)-> moveFile(y, s, cfg)
+                    ));
         }
-
 
     }
 
+
     private List<YamtMusic> handleMetaData(List<YamtMusic> music, YamtConfig config) throws YamtException {
-        switch(config.getStrategy()){
-            case FETCH_NEVER: return music;
-            case FETCH_ALWAYS: return fetchMetadata(music);
+        switch (config.getStrategy()) {
+            case FETCH_NEVER:
+                return music;
+            case FETCH_ALWAYS:
+                return fetchMetadata(music);
             case FETCH_REQUIRED: {
                 FormatResult result = formatMusic(music, config.getFormat().get());
                 List<YamtMusic> successful = new ArrayList<>(result.getSuccess().keySet());
-                if(result.getFailed().isEmpty()){
+                if (result.getFailed().isEmpty()) {
                     return successful;
-                }else{
+                } else {
                     List<YamtMusic> missing = fetchMetadata(result.getFailed());
                     missing.addAll(successful);
                     return missing;
                 }
             }
-            default: throw new RuntimeException("Not reachable!");
+            default:
+                throw new RuntimeException("Not reachable!");
         }
     }
 
@@ -85,12 +81,12 @@ public class Yamt {
         MusicFormatter mf = new MusicFormatter(format);
         Map<YamtMusic, String> resultMap = new HashMap<>();
         List<YamtMusic> failed = new ArrayList<>();
-        for (YamtMusic m : music){
-            try{
+        for (YamtMusic m : music) {
+            try {
 
-                mf.format(m);
-
-            }catch (YamtException.MissingMetaDataException e){
+                String s =  mf.format(m);
+                resultMap.put(m, s);
+            } catch (YamtException.MissingMetaDataException e) {
                 failed.add(m);
                 System.out.println(e.getMessage());
             }
@@ -114,21 +110,21 @@ public class Yamt {
         return formatter;
     }
 
-    private List<YamtMusic> fetchMetadata(List<YamtMusic> musicList) throws YamtException{
+    private List<YamtMusic> fetchMetadata(List<YamtMusic> musicList) throws YamtException {
 
         MetaFetcher mf = new MetaFetcher();
         Map<YamtMusic, MetaTemplate> metaDataMap = mf.fetch(musicList);
 
         List<YamtMusic> returnList = new ArrayList<>(metaDataMap.size());
-        for(YamtMusic music : metaDataMap.keySet()){
-            //TODO: update music with metadata
-
+        for (YamtMusic music : metaDataMap.keySet()) {
+            music.fillMetaData(metaDataMap.get(music));
+            music.commitMetaData();
             returnList.add(music);
         }
         return returnList;
     }
 
-    public static File moveToTmp(File fileToMove) throws Exception {
+    public static File copyToTmp(File fileToMove) throws Exception {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         return Files.copy(fileToMove.toPath(), tmpDir.toPath().resolve(fileToMove.getName()),
                 StandardCopyOption.COPY_ATTRIBUTES,
@@ -136,6 +132,23 @@ public class Yamt {
                 .toFile();
     }
 
+    public static File moveFile(YamtMusic music, String fromatString, YamtConfig config) throws IOException {
+
+        String extension = "";
+
+        int i = music.getFile().getAbsolutePath().lastIndexOf('.');
+
+        if (i > 0) {
+            extension = music.getFile().getAbsolutePath().substring(i + 1);
+        }
+        String path = config.getOutputDirectory() +"/"+ fromatString +"."+ extension;
+        path = path.replaceAll("[\"|:*?<>]", "");
+
+        String folder = path.substring(0, path.lastIndexOf('/'));
+        Files.createDirectories(Paths.get(folder));
+
+        return Files.move(music.getFile().toPath(), Paths.get(path)).toFile();
+    }
 
 
 }

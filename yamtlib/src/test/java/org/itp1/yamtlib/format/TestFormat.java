@@ -92,8 +92,8 @@ public class TestFormat {
         Assert.assertEquals("", newName);
     }
 
-    @Test(expected = YamtException.FormatException.class)
-    public void testShouldThrowExceptionOnEmptyMetaData() throws YamtException.FormatException {
+    @Test(expected = YamtException.MissingMetaDataException.class)
+    public void testShouldThrowExceptionOnEmptyMetaData() throws YamtException {
         MusicFormatter mf = new MusicFormatter("{artist}/{title}");
         mf.format(empty);
     }

@@ -1,11 +1,12 @@
 package org.itp1.yamtlib.metadata.musicBrainz;
 
 
+import com.google.common.io.LineReader;
 import com.google.gson.Gson;
 import lombok.NoArgsConstructor;
 import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.music.YamtMusic;
-import org.testifyproject.guava.common.io.LineReader;
+
 
 import java.io.InputStreamReader;
 import java.io.Reader;

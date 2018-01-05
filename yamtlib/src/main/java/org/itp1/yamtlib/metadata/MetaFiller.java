@@ -7,8 +7,7 @@ import org.itp1.yamtlib.music.YamtMusic;
 import java.util.Map;
 
 
-//dont forget that for real write you still need to commit!!
-//TODO: commit method also here? or everything to YamtMusic - method for commiting and filling that takes a metatemplate as parameter?
+
 public class MetaFiller {
     /**
      * uses all WantedKeys to get the values from the MetaTemplate and sets the MetaTemplates values as the YamtMusic MetaTags - does not commit it!
