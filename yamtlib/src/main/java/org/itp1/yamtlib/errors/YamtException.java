@@ -81,22 +81,6 @@ public class YamtException extends Exception {
         }
     }
 
-    public static class MetaDataException extends YamtException {
-        public MetaDataException() {
-        }
-
-        public MetaDataException(String message) {
-            super(message);
-        }
-
-        public MetaDataException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public MetaDataException(Throwable cause) {
-            super(cause);
-        }
-    }
 
     public static class MusicException extends YamtException {
         public MusicException() {
