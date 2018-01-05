@@ -39,19 +39,19 @@ public class MusicFormatter {
      * @return the new filename relative to the output directory as String
      * @throws YamtException.FormatException when the given format string is invalid or if the required metadata is not present
      */
-    public String format(@NonNull YamtMusic music) throws YamtException.FormatException {
+    public String format(@NonNull YamtMusic music) throws YamtException.FormatException, YamtException.MissingMetaDataException {
         try {
             return partialFormat(formatString, music)
                     .replaceAll("\\\\\\{", "{")
                     .replaceAll("\\\\}", "}");
-        } catch (YamtException.FormatException fe) {
+        } catch (YamtException.FormatException | YamtException.MissingMetaDataException fe) {
             throw fe;
         } catch (YamtException e) {
             throw new YamtException.FormatException("Unable to format file [" + music.getFile() + "]", e);
         }
     }
 
-    private String partialFormat(String remainingFormat, @NonNull YamtMusic music) throws YamtException {
+    private String partialFormat(String remainingFormat, @NonNull YamtMusic music) throws YamtException{
 
         //get both opening and closing Brackets in remaining String
         int iOpenBracket = indexOfNotEscaped(0, '{', remainingFormat);
@@ -71,7 +71,7 @@ public class MusicFormatter {
                     partialFormat(remainingFormat.substring(iCloseBracket + 1), music);
 
         } else {
-            throw new YamtException.FormatException(
+            throw new YamtException.MissingMetaDataException(
                     "Unable to generate new name for file ["
                             + (music.getFile() != null ? music.getFile().getPath() : null) +
                             "]\n Missing metadata: [" + metaDataIdentifier + "]");

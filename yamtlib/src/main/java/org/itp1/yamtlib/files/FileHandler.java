@@ -1,10 +1,11 @@
 package org.itp1.yamtlib.files;
+
 import lombok.NonNull;
+import org.itp1.yamtlib.Yamt;
 import org.itp1.yamtlib.config.YamtConfig;
 import org.itp1.yamtlib.errors.YamtException;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,11 +24,11 @@ public class FileHandler {
      * @return
      * @throws YamtException.FilesException
      */
-    /*
+
     public List<File> collectViaConfig(YamtConfig cfg) throws YamtException.FilesException {
-        return collectViaConfig(cfg.getMusicDir(), cfg.recursive());
+        return collectFiles(cfg.getMusicSource(), cfg.getSearchFilesRecursive(),true);
     }
-    */
+
 
 
     /***
@@ -101,8 +102,7 @@ public class FileHandler {
      * @return whether or not file extension is supported
      */
     private boolean isFileExtensionSupported(@NonNull File f) {
-        // TODO: get real list of supported Extentions, all in lowercase
-        String[] validExtentions = new String[]{"mp3", "wav", "ogg"};
-        return false;
+        return YamtConfig.SUPPORTED_EXTENSIONS.stream()
+                .anyMatch(ext -> f.getAbsolutePath().endsWith("." + ext));
     }
 }

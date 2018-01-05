@@ -44,4 +44,5 @@ public enum WantedKey {
                                 MusicException("Metadata tempalate string not supported: ["+ templateString +"]"));
     }
 
+
 }

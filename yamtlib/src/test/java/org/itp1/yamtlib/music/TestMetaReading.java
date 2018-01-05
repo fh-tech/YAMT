@@ -6,8 +6,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
-
 public class TestMetaReading extends TestMeta {
 
     // supports flac, ogg vorbis, mp3, wav(limited)

@@ -7,6 +7,7 @@ import lombok.Value;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,8 @@ import java.util.Optional;
 @Value
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class YamtConfig {
+
+    public static final List<String> SUPPORTED_EXTENSIONS = Arrays.asList("mp3", "ogg", "flac");
 
     @NonNull
     private final List<File> musicSource;
