@@ -2,13 +2,16 @@ package org.itp1.yamtlib.music;
 
 import lombok.Getter;
 import org.itp1.yamtlib.errors.YamtException;
+import org.itp1.yamtlib.metadata.MetaTemplate;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.Tag;
 
 import java.io.File;
+import java.util.Set;
 
 
 @Getter
@@ -19,7 +22,6 @@ public class YamtMusic {
     private Tag tags;
     private String format;
     private File file;
-
     /**
      * Used to create YamtMusic Objects.
      * @param url absolute path to file as String
@@ -75,6 +77,29 @@ public class YamtMusic {
             this.getTags().setField(wantedKey.getFk(), newValue);
         } catch (FieldDataInvalidException e) {
             throw new YamtException.MusicException("Setting tag failed", e);
+        }
+    }
+
+    /**
+     * Fills the metatags with Metatemplates values
+     * @param metaTemplate MetaTemplate with the fetched values
+     * @throws YamtException.MusicException
+     */
+    public void fillMetaData(MetaTemplate metaTemplate) throws YamtException.MusicException {
+        for(WantedKey key :(Set<WantedKey>) metaTemplate.getApiMeta().keySet()) {
+            this.setTag(key, metaTemplate.getValue(key));
+        }
+    }
+
+    /**
+     * Writes the actual metatags to the real file
+     * @throws YamtException.MusicException
+     */
+    public void commitMetaData() throws YamtException.MusicException {
+        try {
+            this.audioFile.commit();
+        } catch (CannotWriteException e) {
+            e.printStackTrace();
         }
     }
 

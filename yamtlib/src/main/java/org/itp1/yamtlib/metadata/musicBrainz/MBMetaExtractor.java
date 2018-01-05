@@ -6,6 +6,8 @@ import org.itp1.yamtlib.music.WantedKey;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 
 // results seem to be ordered by score, so taking the first seems to be the best choice
 public class MBMetaExtractor implements MetaExtractor<JSONObject> {
@@ -13,9 +15,8 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
 
     /**
      * checks if json is valid (status) and then extracts metadata from it
-     *
      * @param key the key indicates which type of metadata should be extracted
-     * @param j   the json that should be used
+     * @param j the json that should be used
      * @return String extract-result will be "" if nothing was found
      * @throws YamtException.MetaDataException
      */
@@ -37,10 +38,10 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
         }
     }
 
+
     /**
      * goes through as many entries in the resultJSONArray and its corresponding recordingsArrays and artistsArrays until the artist value is not empty anymore
      * since the first result should be the most accurate one but can be empty by mistake
-     *
      * @param json the json result that should be searched
      * @return returns a String for the artist - empty string if nothing was found
      */
@@ -48,28 +49,34 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
         String artist = "";
         int i = 0;
         int resultSize = getInstanceSize(json, "results");
-        while ("".equals(artist) && i < resultSize) {
+        while("".equals(artist) && i < resultSize) {
             JSONObject result = getResult(json, i);
             int f = 0;
             int recordingSize = getInstanceSize(result, "recordings");
-            while ("".equals(artist) && f < recordingSize) {
+            while("".equals(artist) && f < recordingSize) {
                 JSONObject recording = getRecording(result, f);
                 int artistsSize = getInstanceSize(recording, "artists");
                 JSONObject artistObj;
                 if (artistsSize > 1) {
+                    String joinphrase = "";
                     String feat = "";
                     for (int j = 0; j < artistsSize; j++) {
                         artistObj = getArtists(recording, j);
                         if (artistObj.has("joinphrase")) {
-                            feat = " feat. " + artistObj.get("name").toString();
+                            joinphrase = artistObj.get("joinphrase").toString();
+                            if (artistObj.has("name")) {
+                                artist = artistObj.get("name").toString();
+                            }
                         } else {
-                            artist = artistObj.get("name").toString();
+                            if(artistObj.has("name")) {
+                                feat = artistObj.get("name").toString();
+                            }
                         }
                     }
-                    artist = artist + feat;
+                    artist = artist + joinphrase + feat;
                 } else {
                     artistObj = getArtists(recording, 0);
-                    if (artistObj != null && artistObj.has("name")) {
+                    if(artistObj != null && artistObj.has("name")) {
                         artist = artistObj.get("name").toString();
                     }
                 }
@@ -77,14 +84,12 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             }
             i++;
         }
-        System.out.println("Artist: " + artist);
         return artist;
     }
 
     /**
      * goes through as many entries in the resultJSONArray and its corresponding recordingsArrays and artistsArrays until the title value is not empty anymore
      * since the first result should be the most accurate one but can be empty by mistake
-     *
      * @param json the json result that should be searched
      * @return returns a String for the artist - empty string if nothing was found
      */
@@ -105,14 +110,13 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             }
             i++;
         }
-        System.out.println("Title: " + title);
+
         return title;
     }
 
     /**
      * goes through as many entries in the resultJSONArray and its corresponding recordingsArrays and artistsArrays until the album value is not empty anymore
      * since the first result should be the most accurate one but can be empty
-     *
      * @param json the json result that should be searched
      * @return returns a String for the artist - empty string if nothing was found
      */
@@ -127,10 +131,10 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             while ("".equals(album) && f < recordingSize) {
                 JSONObject recording = getRecording(result, f);
                 int g = 0;
-                int releaseGroupsSize = getInstanceSize(recording, "releasegroups");
+                int releaseGroupsSize = getInstanceSize(recording,"releasegroups");
                 while ("".equals(album) && g < releaseGroupsSize) {
                     JSONObject releaseGroup = getReleaseGroups(recording, g);
-                    if (releaseGroup.has("title")) {
+                    if(releaseGroup.has("title")) {
                         album = releaseGroup.getString("title");
                     }
                     g++;
@@ -139,13 +143,12 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
             }
             i++;
         }
-        System.out.println("Album: " + album);
         return album;
     }
 
 
     private JSONObject getResult(JSONObject json, int instance) {
-        if (json.has("results")) {
+        if(json.has("results")) {
             JSONArray jAr = json.getJSONArray("results");
             if (jAr.length() > instance) {
                 json = jAr.getJSONObject(instance);
@@ -156,14 +159,14 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
     }
 
     private JSONObject getRecording(JSONObject result, int instance) {
-        if (result.has("recordings")) {
+        if(result.has("recordings")) {
             return result.getJSONArray("recordings").getJSONObject(instance);
         }
         return null;
     }
 
     private JSONObject getReleaseGroups(JSONObject recording, int instance) {
-        if (recording.has("releasegroups")) {
+        if(recording.has("releasegroups")) {
             return recording.getJSONArray("releasegroups").getJSONObject(instance);
         }
         return null;
@@ -171,7 +174,7 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
 
 
     private JSONObject getArtists(JSONObject recording, int instance) {
-        if (recording.has("artists")) {
+        if(recording.has("artists")) {
             return recording.getJSONArray("artists").getJSONObject(instance);
         }
         return null;
@@ -179,14 +182,13 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
 
     /**
      * to determine the amount of elements for a certain Array in a json (does not go up or down in hierarchy
-     *
      * @param json the json in which the search should take place
-     * @param key  the key that should be searched
+     * @param key the key that should be searched
      * @return size of the array or 0 if the key was not found
      */
     private int getInstanceSize(JSONObject json, String key) {
         int size = 0;
-        if (json.has(key)) {
+        if(json.has(key)) {
             JSONArray jAr = json.getJSONArray(key);
             size = jAr.length();
         }
@@ -194,14 +196,13 @@ public class MBMetaExtractor implements MetaExtractor<JSONObject> {
     }
 
     /**
-     * Checks if the json status is not an error
-     *
+     * Checks if the json status is ok
      * @param json
      * @return boolean
      */
     private boolean valid(JSONObject json) {
-        if (json.has("status")) {
-            if (json.get("status") != "error") {
+        if(json.has("status")) {
+            if("ok".equals(json.get("status").toString())) {
                 return true;
             }
         }

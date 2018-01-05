@@ -11,6 +11,7 @@ import org.itp1.yamtlib.metadata.MetaRequestor;
 import org.itp1.yamtlib.music.YamtMusic;
 import org.json.JSONObject;
 
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,8 +23,7 @@ public class MBMetaRequestor implements MetaRequestor<Map<YamtMusic, AccousticFi
     private static final String allMeta = "recordings+recordingids+releases+releaseids+releasegroups+releasegroupids+tracks+compress+usermeta+sources";
     private static final String normalMeta = "recordings+releasegroups+compress";
     private static final String minimalMeta = "recordings";
-    private static final RateLimiter rateLimiter = RateLimiter.create(2.9); // rate is "3 permits per second"
-
+    private static final RateLimiter rateLimiter = RateLimiter.create(2.98); // rate is "3 permits per second"
 
     /**
      * makes a GET-Request to accoustid and fetches metadata that matches the fingerprint
@@ -34,9 +34,9 @@ public class MBMetaRequestor implements MetaRequestor<Map<YamtMusic, AccousticFi
      */
     @Override
     public Map<YamtMusic, JSONObject> fetchMetaData(Map<YamtMusic, AccousticFingerprint> yamtFP) throws YamtException.MetaDataException {
-        Map<YamtMusic, JSONObject> yamtJSON = new LinkedHashMap<>();
-        HttpResponse<JsonNode> response = null;
         try {
+            Map<YamtMusic, JSONObject> yamtJSON = new LinkedHashMap<>();
+            HttpResponse<JsonNode> response = null;
             for (YamtMusic music : yamtFP.keySet()) {
                 String request = url + "?client="
                         + key + "&meta="
@@ -53,4 +53,6 @@ public class MBMetaRequestor implements MetaRequestor<Map<YamtMusic, AccousticFi
             throw new YamtException.MetaDataException(e);
         }
     }
+
+
 }
