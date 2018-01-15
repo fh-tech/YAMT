@@ -3,6 +3,7 @@ package org.itp1.yamtlib.metadata.musicBrainz;
 import lombok.Getter;
 
 import java.io.File;
+import java.io.InputStream;
 
 @Getter
 public enum Fpcalc {
@@ -10,10 +11,10 @@ public enum Fpcalc {
     LINUX("/fpcalc_linux_x86_64"),
     MAC("/fpcalc_macos_x86_64");
 
-    private File programFile;
+    private InputStream programFile;
 
     Fpcalc(String program) {
-        this.programFile = new File(getClass().getResource(program).getFile());
+        this.programFile = getClass().getResourceAsStream(program);
     }
 }
 

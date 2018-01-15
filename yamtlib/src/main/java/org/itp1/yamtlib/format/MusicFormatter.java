@@ -43,7 +43,8 @@ public class MusicFormatter {
         try {
             return partialFormat(formatString, music)
                     .replaceAll("\\\\\\{", "{")
-                    .replaceAll("\\\\}", "}");
+                    .replaceAll("\\\\}", "}")
+                    .replaceAll("[\":|*?<>]", "");
         } catch (YamtException.FormatException | YamtException.MissingMetaDataException fe) {
             throw fe;
         } catch (YamtException e) {

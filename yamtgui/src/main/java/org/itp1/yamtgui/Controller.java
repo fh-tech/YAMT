@@ -138,14 +138,20 @@ public class Controller {
                 ));
         Yamt yamt = new Yamt();
 
-        try {
-            yamt.runYamt(config);
-            System.out.println("Music Files [" + musicFiles.size() + "] reformatted.");
-            musicFiles.clear();
-            listViewSelectedFiles.setItems(musicFiles);
-        }catch (Exception e){
-            e.printStackTrace();
-            System.exit(1);
-        }
+        Platform.runLater(() -> {
+            try {
+                yamt.runYamt(config);
+                System.out.println("Music Files successfully reformatted.");
+                musicFiles.clear();
+                listViewSelectedFiles.setItems(musicFiles);
+            }catch (Exception e){
+
+                e.printStackTrace();
+                e.getCause().printStackTrace();
+                e.getCause().getCause().printStackTrace();
+
+                //System.exit(1);
+        }});
+
     }
 }

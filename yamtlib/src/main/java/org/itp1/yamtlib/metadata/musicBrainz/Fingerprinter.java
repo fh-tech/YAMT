@@ -8,8 +8,10 @@ import org.itp1.yamtlib.errors.YamtException;
 import org.itp1.yamtlib.music.YamtMusic;
 
 
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,12 +37,17 @@ public class Fingerprinter {
             List<String> absPaths = new ArrayList<>();
             Fpcalc program = getProgram();
             //pass the path to program
-            absPaths.add(program.getProgramFile().getAbsolutePath());
+            File fpcalc = getTmpFpCalc(program.getProgramFile());
+
+            absPaths.add(fpcalc.getAbsolutePath());
+
             //pass -json for output formatting
             absPaths.add("-json");
             yM.stream()
                     .map((m) -> m.getFile().getAbsolutePath())
                     .forEach(absPaths::add);
+
+
             return absPaths;
         } catch(YamtException.MetaDataException e) {
             throw new YamtException.MetaDataException("Construction of command failed", e);
@@ -79,6 +86,7 @@ public class Fingerprinter {
             for(int i = 0; i < yM.size(); i++) {
                 mappedMusic.put(yM.get(i), aF.get(i));
             }
+            //removeTmpFpCalc();
             return mappedMusic;
         } catch(Exception e) {
             throw new YamtException.MetaDataException("mapping the 2 lists failed", e);
@@ -104,5 +112,22 @@ public class Fingerprinter {
         return System.getProperty("os.name").toLowerCase();
     }
 
+
+    private File getTmpFpCalc(InputStream ins) throws YamtException.MetaDataException {
+        try {
+            Files.copy(ins, Paths.get(System.getProperty("java.io.tmpdir") + "/fpcalc.exe"), StandardCopyOption.REPLACE_EXISTING);
+            return new File(System.getProperty("java.io.tmpdir") + "/fpcalc.exe");
+        }catch (IOException e){
+            throw new YamtException.MetaDataException("Unable to extract Fingerprinter", e);
+        }
+    }
+
+    private void removeTmpFpCalc() throws YamtException.MetaDataException {
+        try {
+            Files.delete(Paths.get(System.getProperty("java.io.tmpdir") + "/fpcalc.exe"));
+        } catch (IOException e) {
+            throw new YamtException.MetaDataException("Unable to delete Fingerprinter", e);
+        }
+    }
 
 }

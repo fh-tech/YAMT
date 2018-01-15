@@ -147,7 +147,7 @@ public class Yamt {
         String folder = path.substring(0, path.lastIndexOf('/'));
         Files.createDirectories(Paths.get(folder));
 
-        return Files.move(music.getFile().toPath(), Paths.get(path)).toFile();
+        return Files.move(music.getFile().toPath(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING).toFile();
     }
 
 
