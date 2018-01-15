@@ -108,7 +108,8 @@
                         </HBox>
                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="3">
                            <children>
-                              <TextField fx:id="outputTextField" HBox.hgrow="ALWAYS" />
+                              <TextField fx:id="outputTextField" editable="false" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="buttonChooseOutputFolder" mnemonicParsing="false" onAction="#chooseOutputFolder" text="Choose Folder" />
                            </children>
                            <GridPane.margin>
                               <Insets left="10.0" right="10.0" />
@@ -176,12 +177,17 @@
                         <ListView fx:id="listViewSelectedFiles" prefHeight="236.0" prefWidth="418.0" />
                         <HBox prefHeight="30.0" prefWidth="418.0">
                            <children>
-                              <Button fx:id="buttonAddFile" mnemonicParsing="false" onAction="#addFileOrFolder" text="Add File / Folder">
+                              <Button fx:id="buttonAddFile" mnemonicParsing="false" onAction="#addFile" text="Add File">
                                  <HBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                  </HBox.margin>
                               </Button>
-                              <Button fx:id="buttonRemoveFile" mnemonicParsing="false" text="Remove File / Folder">
+                              <Button fx:id="buttonAddFolder" mnemonicParsing="false" onAction="#addFolder" text="Add Folder">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="buttonRemoveFile" mnemonicParsing="false" onAction="#removeFileOrFolder" text="Remove File / Folder">
                                  <HBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                  </HBox.margin>

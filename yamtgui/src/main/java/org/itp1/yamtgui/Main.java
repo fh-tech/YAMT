@@ -12,7 +12,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("/Yamt.fxml")); // DON'T DELETE THIS SLASH
         stage.setTitle("YAMT");
-        stage.setScene(new Scene(root, 900, 600));
+        stage.setScene(new Scene(root, 1280, 800));
         stage.show();
     }
 
@@ -20,4 +20,5 @@ public class Main extends Application {
         // Yamt gui
         launch(args);
     }
+
 }

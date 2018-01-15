@@ -142,7 +142,7 @@ public class Yamt {
             extension = music.getFile().getAbsolutePath().substring(i + 1);
         }
         String path = config.getOutputDirectory() +"/"+ fromatString +"."+ extension;
-        path = path.replaceAll("[\"|:*?<>]", "");
+        path = path.replaceAll("[\"|*?<>]", "");
 
         String folder = path.substring(0, path.lastIndexOf('/'));
         Files.createDirectories(Paths.get(folder));

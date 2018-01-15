@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -26,25 +27,19 @@ public class Controller {
     public RadioButton radioMove;
     public RadioButton radioCopy;
     public ChoiceBox choiceFetch;
+    public Button buttonChooseOutputFolder;
     public Button buttonAddFile;
+    public Button buttonAddFolder;
     public Button buttonRemoveFile;
     public Button buttonReformatFiles;
 
     public ListView listViewSelectedFiles;
     public TextArea textAreaOutput;
 
-    public ObservableList musicFiles = FXCollections.observableArrayList();
+    private ObservableList musicFiles = FXCollections.observableArrayList();
+    private File chosenOutputFolder;
 
-    public Controller() {
-
-        /*
-        Console console = new Console(textAreaOutput);
-        PrintStream ps = new PrintStream(console, true);
-        System.setOut(ps);
-        System.setErr(ps);
-        */
-
-    }
+    public Controller() {}
 
     @FXML
     public void initialize() {
@@ -59,13 +54,38 @@ public class Controller {
         ));
         choiceFetch.getSelectionModel().selectFirst();
 
-        // init focus on formatTextField, doesn't work
-        formatTextField.requestFocus();
+        // init listViewSelectedFiles
+        listViewSelectedFiles.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        // TODO: input validation, output folder with file chooser, console to output, ...
+        // init focus on formatTextField
+        Platform.runLater(() -> formatTextField.requestFocus());
+
+        // init console output to textAreaOutput
+        OutputStream out = new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                appendText(String.valueOf((char) b));
+            }
+        };
+        System.setOut(new PrintStream(out, true));
     }
 
-    public void addFileOrFolder(ActionEvent actionEvent) {
+    private void appendText(String str) {
+        Platform.runLater(() -> textAreaOutput.appendText(str));
+    }
+
+    public void chooseOutputFolder(ActionEvent actionEvent) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Choose Output Folder");
+
+        chosenOutputFolder = directoryChooser.showDialog(null);
+
+        if (chosenOutputFolder != null) {
+            outputTextField.setText(chosenOutputFolder.getPath());
+        }
+    }
+
+    public void addFile(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Music File or Folder");
         fileChooser.getExtensionFilters().addAll(
@@ -77,62 +97,55 @@ public class Controller {
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
 
         if (selectedFiles != null) {
-            textAreaOutput.setText("Music files selected [" + selectedFiles.size() + "]");
             musicFiles.addAll(selectedFiles);
-        } else {
-            textAreaOutput.setText("Music file selection cancelled.");
+        }
+
+        listViewSelectedFiles.setItems(musicFiles);
+    }
+
+    public void addFolder(ActionEvent actionEvent) {
+        // Javafx directly only supports single folder choosers
+
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Music Folder");
+        // directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        File selectedFolder = directoryChooser.showDialog(null);
+
+        if (selectedFolder != null) {
+            musicFiles.addAll(selectedFolder);
         }
 
         listViewSelectedFiles.setItems(musicFiles);
     }
 
     public void removeFileOrFolder(ActionEvent actionEvent) {
-         // listViewSelectedFiles.getSelectionModel().selectedItemProperty();
+        ObservableList selectedFiles = listViewSelectedFiles.getSelectionModel().getSelectedItems();
+        musicFiles.removeAll(selectedFiles);
+
+        listViewSelectedFiles.setItems(musicFiles);
     }
 
     public void runYamt(ActionEvent actionEvent) throws YamtException {
 
         YamtConfig config = ConfigFactory.generate(() -> new IncompleteYamtConfig(
                 musicFiles,
-                new File(outputTextField.getText()), // TODO: path relative to project
+                chosenOutputFolder,
                 formatTextField.getText(),
                 checkBoxRecursive.isSelected(),
-                false, // TODO: moveOnRename
+                radioMove.isSelected(),
                 MetaDataStrategy.fromString(choiceFetch.getValue().toString())
                 ));
         Yamt yamt = new Yamt();
 
-        /*
-        new Thread(() -> {
-            try {
-                yamt.runYamt(config);
-            } catch (YamtException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        */
-
         try {
             yamt.runYamt(config);
+            System.out.println("Music Files [" + musicFiles.size() + "] reformatted.");
+            musicFiles.clear();
+            listViewSelectedFiles.setItems(musicFiles);
         }catch (Exception e){
             e.printStackTrace();
             System.exit(1);
         }
     }
-
-    /*
-    public static class Console extends OutputStream {
-
-        private TextArea output;
-
-        public Console(TextArea ta) {
-            this.output = ta;
-        }
-
-        @Override
-        public void write(int i) throws IOException {
-            output.appendText(String.valueOf((char) i));
-        }
-    }
-    */
 }
